@@ -1,6 +1,5 @@
 import React from 'react'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 
 import './globals.css'
 
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://histui.dev',
+    url: 'https://histui.vercel.app',
     title: 'histui – Detect file coupling and refactor with confidence',
     description:
       'Analyze git history to understand file coupling patterns and plan architectural refactors.',
@@ -55,7 +54,7 @@ export const metadata: Metadata = {
     creator: '@histui',
     site: '@histui',
   },
-  metadataBase: new URL('https://histui.dev'),
+  metadataBase: new URL('https://histui.vercel.app'),
 }
 
 export default function RootLayout({
