@@ -6,10 +6,10 @@ Identify files that are frequently modified together across commits to reveal im
 
 ## User Value
 
--   Refactoring Planning: Understand which files will likely need updates when changing a specific file
--   Team Organization: Identify files that should be owned by the same team/person
--   Architecture Insights: Reveal hidden coupling between modules that share no direct code dependencies
--   Risk Assessment: Predict blast radius of changes before making them
+- Refactoring Planning: Understand which files will likely need updates when changing a specific file
+- Team Organization: Identify files that should be owned by the same team/person
+- Architecture Insights: Reveal hidden coupling between modules that share no direct code dependencies
+- Risk Assessment: Predict blast radius of changes before making them
 
 ## Functional Requirements
 
@@ -30,10 +30,10 @@ Commit C: Modified [auth/login.rs]
 
 Result:
 
--   auth/login.rs ↔ db/sessions.rs: 2 co-changes
--   auth/login.rs ↔ utils/token.rs: 1 co-change
--   auth/login.rs total changes: 3
--   db/sessions.rs total changes: 2
+- auth/login.rs ↔ db/sessions.rs: 2 co-changes
+- auth/login.rs ↔ utils/token.rs: 1 co-change
+- auth/login.rs total changes: 3
+- db/sessions.rs total changes: 2
 
 ### FR2: Coupling Strength Calculation
 
@@ -97,10 +97,10 @@ Auto-generate cluster description based on file paths (e.g., "Authentication Mod
 Example Output:
 Cluster: Authentication Module (avg coupling: 0.82)
 
--   auth/login.rs
--   auth/session.rs
--   auth/token.rs
--   db/sessions.rs
+- auth/login.rs
+- auth/session.rs
+- auth/token.rs
+- db/sessions.rs
 
 ### FR5: Filtering & Search
 
@@ -131,12 +131,12 @@ Display trend indicator (↑ increasing, ↓ decreasing, → stable)
 Example:
 auth/login.rs ↔ db/sessions.rs
 
--   Last month: 0.92 ↑
--   Last 3 mo: 0.85
--   Last year: 0.78
--   All time: 0.72
+- Last month: 0.92 ↑
+- Last 3 mo: 0.85
+- Last year: 0.78
+- All time: 0.72
 
-    Trend: Coupling increasing - potential architectural concern
+  Trend: Coupling increasing - potential architectural concern
 
 ## Non-Functional Requirements
 
@@ -192,15 +192,15 @@ Q: Return to main dashboard
 
 ## Edge Cases & Error Handling
 
--   Single-file commits: Ignore for coupling calculation
--   Renamed files: Track as same logical file using git rename detection
--   Deleted files: Show in history but mark as [DELETED]
--   Very large commits (100+ files): Consider excluding as noise (configurable threshold)
--   Empty repository: Display "No coupling data available"
--   No coupled files found: Display message suggesting repo might be well-modularized
+- Single-file commits: Ignore for coupling calculation
+- Renamed files: Track as same logical file using git rename detection
+- Deleted files: Show in history but mark as [DELETED]
+- Very large commits (100+ files): Consider excluding as noise (configurable threshold)
+- Empty repository: Display "No coupling data available"
+- No coupled files found: Display message suggesting repo might be well-modularized
 
 ## Success Metrics
 
--   User can identify top 3 coupled file pairs within 10 seconds of opening the view
--   Clustering accurately groups related files (manual validation on sample repos)
--   Users find at least 1 actionable insight per session
+- User can identify top 3 coupled file pairs within 10 seconds of opening the view
+- Clustering accurately groups related files (manual validation on sample repos)
+- Users find at least 1 actionable insight per session

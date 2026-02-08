@@ -3,9 +3,9 @@
 import { useState } from 'react'
 
 export default function QuickStartSection() {
-  const [activeTab, setActiveTab] = useState<
-    'npm' | 'yarn' | 'pnpm' | 'cargo'
-  >('npm')
+  const [activeTab, setActiveTab] = useState<'npm' | 'yarn' | 'pnpm' | 'cargo'>(
+    'npm'
+  )
 
   const commands = {
     npm: 'npm install -g histui',
@@ -56,9 +56,7 @@ export default function QuickStartSection() {
         {/* Installation Tabs */}
         <div className="mb-12">
           <div className="flex border-b border-border mb-6">
-            {(
-              ['npm', 'yarn', 'pnpm', 'cargo'] as const
-            ).map((pm) => (
+            {(['npm', 'yarn', 'pnpm', 'cargo'] as const).map((pm) => (
               <button
                 key={pm}
                 onClick={() => setActiveTab(pm)}
@@ -74,7 +72,9 @@ export default function QuickStartSection() {
           </div>
 
           <div className="bg-card border border-border p-6">
-            <code className="text-accent font-mono">$ {commands[activeTab]}</code>
+            <code className="text-accent font-mono">
+              $ {commands[activeTab]}
+            </code>
           </div>
         </div>
 
@@ -91,9 +91,7 @@ export default function QuickStartSection() {
                 <h3 className="text-lg font-semibold text-foreground mb-2">
                   {step.title}
                 </h3>
-                <p className="text-muted-foreground mb-4">
-                  {step.description}
-                </p>
+                <p className="text-muted-foreground mb-4">{step.description}</p>
                 <div className="bg-card/50 border border-border/50 p-4 rounded-sm">
                   <code className="text-accent font-mono text-sm">
                     $ {step.code}

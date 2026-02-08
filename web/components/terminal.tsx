@@ -148,9 +148,7 @@ export default function Terminal() {
               )
             })}
             {isAnimating && (
-              <div className="text-foreground animate-pulse">
-                $ ▌
-              </div>
+              <div className="text-foreground animate-pulse">$ ▌</div>
             )}
           </div>
         </div>
@@ -176,9 +174,7 @@ export default function Terminal() {
           </div>
           <div className="border border-border p-6 bg-card/50">
             <div className="text-3xl font-bold text-accent mb-2">12.4ms</div>
-            <div className="text-sm text-muted-foreground">
-              Analysis Time
-            </div>
+            <div className="text-sm text-muted-foreground">Analysis Time</div>
             <div className="text-xs text-muted-foreground mt-2">
               Fast scanning & indexing
             </div>

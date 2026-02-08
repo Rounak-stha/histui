@@ -40,25 +40,17 @@ export default function CTASection() {
 
         <div className="grid md:grid-cols-3 gap-8 mt-16">
           <div className="p-6 border border-border bg-card/30 rounded-sm">
-            <div className="text-3xl font-bold text-accent mb-2">
-              100K+
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Files Analyzed
-            </div>
+            <div className="text-3xl font-bold text-accent mb-2">100K+</div>
+            <div className="text-sm text-muted-foreground">Files Analyzed</div>
           </div>
           <div className="p-6 border border-border bg-card/30 rounded-sm">
-            <div className="text-3xl font-bold text-accent mb-2">
-              50+
-            </div>
+            <div className="text-3xl font-bold text-accent mb-2">50+</div>
             <div className="text-sm text-muted-foreground">
               Repositories Scanned
             </div>
           </div>
           <div className="p-6 border border-border bg-card/30 rounded-sm">
-            <div className="text-3xl font-bold text-accent mb-2">
-              1000s
-            </div>
+            <div className="text-3xl font-bold text-accent mb-2">1000s</div>
             <div className="text-sm text-muted-foreground">
               Happy Developers
             </div>

@@ -98,9 +98,7 @@ export default function CommandPalette({
               placeholder="Type a command..."
               className="flex-1 bg-transparent text-foreground outline-none placeholder:text-muted-foreground font-mono"
             />
-            <span className="text-xs text-muted-foreground">
-              ESC to close
-            </span>
+            <span className="text-xs text-muted-foreground">ESC to close</span>
           </div>
 
           {/* Commands */}

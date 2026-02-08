@@ -172,8 +172,7 @@ export default function DataVizPlayground() {
             const dx = target.x - node.x
             const dy = target.y - node.y
             const dist = Math.sqrt(dx * dx + dy * dy) || 1
-            const attraction =
-              link.strength * 0.1 * (dist - 100)
+            const attraction = link.strength * 0.1 * (dist - 100)
             node.vx += (dx / dist) * attraction
             node.vy += (dy / dist) * attraction
           }
@@ -284,19 +283,15 @@ export default function DataVizPlayground() {
               const x = e.clientX - rect.left
               const y = e.clientY - rect.top
 
-              const data =
-                repos[repo as keyof typeof repos]
+              const data = repos[repo as keyof typeof repos]
               let clicked = false
 
               data.nodes.forEach((node) => {
                 const dist = Math.sqrt(
-                  Math.pow(x - node.x, 2) +
-                    Math.pow(y - node.y, 2)
+                  Math.pow(x - node.x, 2) + Math.pow(y - node.y, 2)
                 )
                 if (dist < 10) {
-                  setSelectedNode(
-                    selectedNode === node.id ? null : node.id
-                  )
+                  setSelectedNode(selectedNode === node.id ? null : node.id)
                   clicked = true
                 }
               })
@@ -310,9 +305,7 @@ export default function DataVizPlayground() {
 
         <div className="mt-8 grid md:grid-cols-2 gap-8">
           <div className="border border-border p-6 bg-card/50">
-            <h3 className="text-foreground font-semibold mb-4">
-              How to Use
-            </h3>
+            <h3 className="text-foreground font-semibold mb-4">How to Use</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>• Switch repositories to compare patterns</li>
               <li>• Click on nodes to see detailed coupling</li>
@@ -321,9 +314,7 @@ export default function DataVizPlayground() {
             </ul>
           </div>
           <div className="border border-border p-6 bg-card/50">
-            <h3 className="text-foreground font-semibold mb-4">
-              Key Insights
-            </h3>
+            <h3 className="text-foreground font-semibold mb-4">Key Insights</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>• Clustered nodes = high interdependency</li>
               <li>• Identify refactoring opportunities</li>

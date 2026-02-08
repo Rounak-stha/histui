@@ -19,9 +19,7 @@ export default function ScrollNarrative() {
       let progress = 0
       if (sectionStart < windowHeight && sectionEnd > 0) {
         progress =
-          (windowHeight - sectionStart) /
-          (windowHeight + rect.height) *
-          100
+          ((windowHeight - sectionStart) / (windowHeight + rect.height)) * 100
         progress = Math.max(0, Math.min(100, progress))
       }
 
@@ -36,7 +34,8 @@ export default function ScrollNarrative() {
     {
       step: 1,
       title: 'Tangled Dependencies',
-      description: 'Your codebase is a web of interconnected files changing together.',
+      description:
+        'Your codebase is a web of interconnected files changing together.',
       visual: 'chaos',
     },
     {
@@ -75,10 +74,7 @@ export default function ScrollNarrative() {
             style={{
               opacity: Math.max(
                 0,
-                Math.min(
-                  1,
-                  (scrollProgress - idx * 25) / 25 + 0.3
-                )
+                Math.min(1, (scrollProgress - idx * 25) / 25 + 0.3)
               ),
               transform: `translateY(${Math.max(0, (3 - idx) * (100 - scrollProgress) * 0.05)}px)`,
             }}
@@ -95,7 +91,7 @@ export default function ScrollNarrative() {
                   {section.description}
                 </p>
               </div>
-              <div 
+              <div
                 className="border border-border rounded-none aspect-square bg-card/30 flex items-center justify-center relative overflow-hidden"
                 suppressHydrationWarning
               >
@@ -123,9 +119,7 @@ export default function ScrollNarrative() {
           <div
             key={idx}
             className={`h-2 w-2 rounded-full transition-all ${
-              scrollProgress > idx * 25
-                ? 'bg-accent h-3 w-3'
-                : 'bg-muted'
+              scrollProgress > idx * 25 ? 'bg-accent h-3 w-3' : 'bg-muted'
             }`}
           ></div>
         ))}
@@ -151,7 +145,7 @@ function ChaosVisual({ progress }: { progress: number }) {
               y2={y}
               stroke="rgba(140, 200, 100, 0.3)"
               strokeWidth="1"
-              opacity={(progress + i * 10) % 100 / 100}
+              opacity={((progress + i * 10) % 100) / 100}
             />
           </g>
         )
@@ -199,8 +193,10 @@ function ConnectionsVisual({ progress }: { progress: number }) {
             {Array.from({ length: 4 }).map((_, j) => {
               if (j <= i) {
                 const nextAngle = ((i + 1 + j) * 72 * Math.PI) / 180
-                const nextX = Math.round((100 + Math.cos(nextAngle) * 50) * 100) / 100
-                const nextY = Math.round((100 + Math.sin(nextAngle) * 50) * 100) / 100
+                const nextX =
+                  Math.round((100 + Math.cos(nextAngle) * 50) * 100) / 100
+                const nextY =
+                  Math.round((100 + Math.sin(nextAngle) * 50) * 100) / 100
                 return (
                   <line
                     key={`${i}-${j}`}
@@ -210,7 +206,7 @@ function ConnectionsVisual({ progress }: { progress: number }) {
                     y2={nextY}
                     stroke="rgba(140, 200, 100, 0.4)"
                     strokeWidth="1"
-                    opacity={(offset + i * j) % 100 / 100}
+                    opacity={((offset + i * j) % 100) / 100}
                   />
                 )
               }
@@ -226,12 +222,7 @@ function OrganizedVisual({ progress }: { progress: number }) {
   return (
     <svg viewBox="0 0 200 200" className="w-32 h-32">
       <defs>
-        <pattern
-          id="grid"
-          width="20"
-          height="20"
-          patternUnits="userSpaceOnUse"
-        >
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
           <rect
             x="0"
             y="0"

@@ -10,17 +10,17 @@ import UseCasesSection from '@/components/use-cases-section'
 import QuickStartSection from '@/components/quick-start-section'
 
 export default function Home() {
-	return (
-		<>
-			<NavHeader />
-			<main className='min-h-screen bg-background text-foreground overflow-hidden'>
-				<Hero />
-				<Terminal />
-				<ScrollNarrative />
-				<RoadmapSection />
-				<UseCasesSection />
-				<Footer />
-			</main>
-		</>
-	)
+  return (
+    <>
+      <NavHeader />
+      <main className="min-h-screen bg-background text-foreground overflow-hidden">
+        <Hero />
+        <Terminal />
+        <ScrollNarrative />
+        <RoadmapSection />
+        <UseCasesSection />
+        <Footer />
+      </main>
+    </>
+  )
 }
