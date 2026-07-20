@@ -1,72 +1,39 @@
-import React from 'react'
-import type { Metadata } from 'next'
-import { Analytics } from "@vercel/analytics/next"
-
+import type { Metadata, Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'histui – Detect file coupling and refactor with confidence',
-  description:
-    'histui analyzes your git history to reveal file coupling patterns. Understand your codebase architecture, plan refactors, and ship better code.',
-  generator: 'v0.app',
-  keywords: [
-    'git analysis',
-    'file coupling',
-    'code refactoring',
-    'architecture analysis',
-    'developer tools',
-  ],
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    userScalable: false,
+  title: {
+    default: 'histui · Git history for better code changes',
+    template: '%s · histui',
   },
+  description: 'Find files that repeatedly changed together. Local, indexed Git-history context for refactors, architecture work, and coding agents.',
+  keywords: ['Git history', 'file coupling', 'refactoring', 'coding agents', 'architecture analysis'],
+  metadataBase: new URL('https://histui.vercel.app'),
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: 'https://histui.vercel.app',
-    title: 'histui – Detect file coupling and refactor with confidence',
-    description:
-      'Analyze git history to understand file coupling patterns and plan architectural refactors.',
-    siteName: 'histui',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'histui - Git history analysis tool',
-        type: 'image/jpeg',
-      },
-      {
-        url: '/og-image.jpg',
-        width: 800,
-        height: 420,
-        alt: 'histui - Git history analysis tool',
-        type: 'image/jpeg',
-      },
-    ],
+    title: 'histui · See what your next change might miss',
+    description: 'Focused historical coupling evidence for humans and coding agents.',
+    images: ['/og-image.jpg'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'histui – Detect file coupling and refactor with confidence',
-    description:
-      'Analyze your git history to understand code architecture and plan refactors.',
+    title: 'histui · Git history for better code changes',
+    description: 'Focused historical coupling evidence for humans and coding agents.',
     images: ['/og-image.jpg'],
-    creator: '@histui',
-    site: '@histui',
   },
-  metadataBase: new URL('https://histui.vercel.app'),
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#f4f2eb',
+}
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-	   <Analytics />
-      <body className="font-sans antialiased">{children}</body>
+      <body>{children}<Analytics /></body>
     </html>
   )
 }
