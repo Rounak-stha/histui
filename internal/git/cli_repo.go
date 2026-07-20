@@ -2,7 +2,9 @@ package git
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -49,12 +51,17 @@ func NewCLIRepository(path string) (Repository, error) {
 		return nil, fmt.Errorf("git not found on PATH: %w", err)
 	}
 
-	cmd := exec.Command(gitBin, "-C", absPath, "rev-parse", "--git-dir")
-	if err := cmd.Run(); err != nil {
+	cmd := exec.Command(gitBin, "-C", absPath, "rev-parse", "--show-toplevel")
+	out, err := cmd.Output()
+	if err != nil {
 		return nil, fmt.Errorf("not a git repository: %s", absPath)
 	}
+	root := strings.TrimSpace(string(out))
+	if root == "" {
+		return nil, fmt.Errorf("failed to determine repository root: %s", absPath)
+	}
 
-	return &CLIRepository{path: absPath, gitBin: gitBin}, nil
+	return &CLIRepository{path: root, gitBin: gitBin}, nil
 }
 
 // git is a helper method that constructs a git command with the repository path pre-configured.
@@ -164,11 +171,28 @@ func (r *CLIRepository) GetBranches() ([]string, error) {
 // Success: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
 // Error: "failed to get HEAD: exit status 128"
 func (r *CLIRepository) GetLatestCommitSHA() (string, error) {
-	out, err := r.git("rev-parse", "HEAD").Output()
+	return r.GetRefSHA("HEAD")
+}
+
+// GetRefSHA resolves a ref to a full commit SHA.
+func (r *CLIRepository) GetRefSHA(ref string) (string, error) {
+	out, err := r.git("rev-parse", "--verify", ref+"^{commit}").Output()
 	if err != nil {
-		return "", fmt.Errorf("failed to get HEAD: %w", err)
+		return "", fmt.Errorf("failed to resolve ref %s: %w", ref, err)
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+// IsAncestor reports whether ancestor is reachable from descendant.
+func (r *CLIRepository) IsAncestor(ancestor, descendant string) (bool, error) {
+	err := r.git("merge-base", "--is-ancestor", ancestor, descendant).Run()
+	if err == nil {
+		return true, nil
+	}
+	if exit, ok := err.(*exec.ExitError); ok && exit.ExitCode() == 1 {
+		return false, nil
+	}
+	return false, fmt.Errorf("check ancestry: %w", err)
 }
 
 // GetCommitCount returns the total number of commits reachable from HEAD.
@@ -188,7 +212,26 @@ func (r *CLIRepository) GetLatestCommitSHA() (string, error) {
 // Error: "failed to count commits: exit status 128"
 // Error: "failed to parse commit count: invalid syntax"
 func (r *CLIRepository) GetCommitCount() (int, error) {
-	out, err := r.git("rev-list", "--count", "HEAD").Output()
+	return r.CountCommits(LoadOptions{})
+}
+
+// CountCommits counts the bounded revision selection without loading commit contents.
+func (r *CLIRepository) CountCommits(opts LoadOptions) (int, error) {
+	args := []string{"rev-list", "--count"}
+	if !opts.IncludeMerges {
+		args = append(args, "--no-merges")
+	}
+	if opts.MaxCommits > 0 {
+		args = append(args, fmt.Sprintf("--max-count=%d", opts.MaxCommits))
+	}
+	if opts.RevisionRange != "" {
+		args = append(args, opts.RevisionRange)
+	} else if opts.Branch != "" {
+		args = append(args, opts.Branch)
+	} else {
+		args = append(args, "HEAD")
+	}
+	out, err := r.git(args...).Output()
 	if err != nil {
 		return 0, fmt.Errorf("failed to count commits: %w", err)
 	}
@@ -273,25 +316,106 @@ func (r *CLIRepository) GetCommit(sha string) (*Commit, error) {
 //
 // Error: "failed to load commits: exit status 128"
 func (r *CLIRepository) LoadCommits(opts LoadOptions) ([]Commit, int, int, int, error) {
-	args := r.buildLogArgs(opts)
-
-	cmd := r.git(args...)
-	out, err := cmd.Output()
+	commits := make([]Commit, 0)
+	totals, err := r.StreamCommits(opts, func(commit Commit) error {
+		commits = append(commits, commit)
+		return nil
+	})
 	if err != nil {
-		return nil, 0, 0, 0, fmt.Errorf("failed to load commits: %w", err)
+		return nil, 0, 0, 0, err
+	}
+	return commits, totals.Files, totals.Insertions, totals.Deletions, nil
+}
+
+// StreamCommits incrementally parses Git output and invokes visit in newest-first log order.
+func (r *CLIRepository) StreamCommits(opts LoadOptions, visit func(Commit) error) (CommitTotals, error) {
+	cmd := r.git(r.buildLogArgs(opts)...)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return CommitTotals{}, fmt.Errorf("open git output: %w", err)
+	}
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Start(); err != nil {
+		return CommitTotals{}, fmt.Errorf("start git log: %w", err)
 	}
 
-	commits := r.parseLogOutput(string(out), true) // Always parse file stats
-
-	// Aggregate stats from commits
-	totalFiles, totalIns, totalDel := 0, 0, 0
-	for _, c := range commits {
-		totalFiles += c.Stats.FilesChanged
-		totalIns += c.Stats.Insertions
-		totalDel += c.Stats.Deletions
+	totals, parseErr := r.visitLogStream(stdout, true, visit)
+	waitErr := cmd.Wait()
+	if parseErr != nil {
+		return CommitTotals{}, fmt.Errorf("parse git log: %w", parseErr)
 	}
+	if waitErr != nil {
+		message := strings.TrimSpace(stderr.String())
+		if message != "" {
+			return CommitTotals{}, fmt.Errorf("failed to load commits: %w: %s", waitErr, message)
+		}
+		return CommitTotals{}, fmt.Errorf("failed to load commits: %w", waitErr)
+	}
+	return totals, nil
+}
 
-	return commits, totalFiles, totalIns, totalDel, nil
+// parseLogStream parses one commit at a time, avoiding a second full copy of git's output.
+func (r *CLIRepository) parseLogStream(reader io.Reader, includeFileStats bool) ([]Commit, int, int, int, error) {
+	commits := make([]Commit, 0)
+	totals, err := r.visitLogStream(reader, includeFileStats, func(commit Commit) error {
+		commits = append(commits, commit)
+		return nil
+	})
+	return commits, totals.Files, totals.Insertions, totals.Deletions, err
+}
+
+func (r *CLIRepository) visitLogStream(reader io.Reader, includeFileStats bool, visit func(Commit) error) (CommitTotals, error) {
+	scanner := bufio.NewScanner(reader)
+	scanner.Split(splitAtCommitDelimiter)
+	// A single bulk commit can have a large numstat block. Keep the bound explicit
+	// while avoiding Scanner's small 64 KiB default token limit.
+	scanner.Buffer(make([]byte, 64*1024), 64*1024*1024)
+
+	totals := CommitTotals{}
+	for scanner.Scan() {
+		block := strings.TrimSpace(scanner.Text())
+		if block == "" {
+			continue
+		}
+		commit := r.parseCommitBlock(block, includeFileStats)
+		if commit == nil {
+			return CommitTotals{}, fmt.Errorf("invalid commit record")
+		}
+		if err := visit(*commit); err != nil {
+			return CommitTotals{}, err
+		}
+		totals.Commits++
+		totals.Files += commit.Stats.FilesChanged
+		totals.Insertions += commit.Stats.Insertions
+		totals.Deletions += commit.Stats.Deletions
+	}
+	if err := scanner.Err(); err != nil {
+		return CommitTotals{}, err
+	}
+	return totals, nil
+}
+
+func splitAtCommitDelimiter(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	delimiter := []byte(commitDelimiter)
+	if !bytes.HasPrefix(data, delimiter) {
+		if index := bytes.Index(data, delimiter); index >= 0 {
+			return index, nil, nil
+		}
+		if atEOF {
+			return len(data), nil, nil
+		}
+		return 0, nil, nil
+	}
+	recordStart := len(delimiter)
+	if index := bytes.Index(data[recordStart:], delimiter); index >= 0 {
+		recordEnd := recordStart + index
+		return recordEnd, data[recordStart:recordEnd], nil
+	}
+	if atEOF {
+		return len(data), data[recordStart:], nil
+	}
+	return 0, nil, nil
 }
 
 // buildLogArgs constructs the command-line arguments for a git log command based on LoadOptions.
@@ -342,7 +466,9 @@ func (r *CLIRepository) buildLogArgs(opts LoadOptions) []string {
 
 	args = append(args, "--numstat", "--diff-merges=first-parent", "-M")
 
-	if opts.Branch != "" {
+	if opts.RevisionRange != "" {
+		args = append(args, opts.RevisionRange)
+	} else if opts.Branch != "" {
 		args = append(args, opts.Branch)
 	} else {
 		args = append(args, "HEAD")

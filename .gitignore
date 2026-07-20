@@ -1,0 +1,15 @@
+# Go build outputs
+/histui
+histui.exe
+
+# JavaScript dependencies and package artifacts
+/node_modules/
+/*.tgz
+
+# Local SQLite indexes
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# OS/editor files
+.DS_Store

@@ -49,6 +49,14 @@ type CommitStats struct {
 	Deletions    int
 }
 
+// CommitTotals summarizes a streamed history traversal.
+type CommitTotals struct {
+	Commits    int
+	Files      int
+	Insertions int
+	Deletions  int
+}
+
 // Commit represents a git commit with all relevant metadata
 type Commit struct {
 	SHA          string
@@ -74,4 +82,5 @@ type LoadOptions struct {
 	MaxCommits       int        // Limit number of commits (0 = unlimited)
 	IncludeMerges    bool       // Whether to include merge commits
 	IncludeFileStats bool       // Whether to include per-file diff stats (slower)
+	RevisionRange    string     // Optional revision or range, for example old..new
 }
