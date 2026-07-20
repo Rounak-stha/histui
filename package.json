@@ -1,0 +1,38 @@
+{
+  "name": "histui-pi",
+  "version": "0.1.0",
+  "description": "Pi extension and Agent Skill for targeted Git-history coupling queries with histui",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "git-history",
+    "coding-agent"
+  ],
+  "scripts": {
+    "test": "node --import tsx --test extensions/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "files": [
+    "extensions/histui.ts",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  }
+}
